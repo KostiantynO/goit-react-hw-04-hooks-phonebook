@@ -12,6 +12,11 @@ npm i
 npm i -D prettier eslint styled-components nanoid prop-types react-icons react-toastify
 
 git remote add origin https://github.com/KostiantynO/goit-react-hw-04-hooks-phonebook.git
+
+gca "initial"
+gph
+
+cp -R ../react-homework-template-main/.github/ ./
 ```
 
 `package.json`
