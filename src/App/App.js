@@ -1,109 +1,77 @@
-import { Component, nanoid, Section } from 'common';
-import { ContactForm, ContactList, Filter } from 'components';
+import { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import { load, save } from 'storage';
-
+import { nanoid, Section } from 'common';
+import { ContactForm, ContactList, Filter } from 'components';
 import 'react-toastify/dist/ReactToastify.css';
 import { AppStyled } from './App.styled';
 
-const INITIAL_STATE = Object.freeze({
-  contacts: [],
-  filter: '',
-});
-
 const LS_KEY = 'phonebook-contacts';
 
-export class App extends Component {
-  state = { ...INITIAL_STATE };
-
-  componentDidMount() {
+export const App = () => {
+  const [contacts, setContacts] = useState(() => {
     const savedContacts = load(LS_KEY);
+    return savedContacts?.length > 0 ? savedContacts : [];
+  });
+  const [filter, setFilter] = useState('');
 
-    if (savedContacts?.length > 0) {
-      this.setState({ contacts: savedContacts });
-    }
-  }
+  useEffect(() => {
+    save(LS_KEY, contacts?.length > 0 ? contacts : []);
+  }, [contacts]);
 
-  componentDidUpdate(_, prevState) {
-    const oldContacts = prevState.contacts;
-    const newContacts = this.state.contacts;
-
-    if (newContacts !== oldContacts) {
-      save(LS_KEY, newContacts?.length > 0 ? newContacts : []);
-    }
-  }
-
-  changeFilter = e => this.setState({ filter: e.currentTarget.value });
-  clearFilter = () => this.setState({ filter: '' });
-
-  getVisibleContacts = () => {
-    const { contacts, filter } = this.state;
-
+  const getVisibleContacts = () => {
     const normalizedFilter = filter.toLowerCase();
 
-    if (contacts?.length > 0) {
-      return contacts.filter(contact =>
-        contact.name.toLowerCase().includes(normalizedFilter)
-      );
-    }
+    if (contacts.length <= 0) return [];
 
-    return [];
+    return contacts.filter(({ name }) =>
+      name.toLowerCase().includes(normalizedFilter)
+    );
   };
 
-  isSaved = newName => {
-    const { contacts } = this.state;
-    const normalizedNewName = newName.toLowerCase();
-
-    const contact = contacts.find(
+  const addContact = ({ name, number }) => {
+    const normalizedNewName = name.toLowerCase();
+    const savedContact = contacts.find(
       ({ name }) => name.toLowerCase() === normalizedNewName
     );
 
-    if (contact) {
-      toast.error(`${contact.name} is already in the contacts`);
-      return true;
+    if (savedContact) {
+      return toast.error(`${savedContact.name} is already saved`);
     }
-  };
-
-  addContact = ({ name, number }) => {
-    if (this.isSaved(name)) return;
 
     const newContact = { id: nanoid(), name, number };
-    this.setState(prevState => ({
-      contacts: [newContact, ...prevState.contacts],
-    }));
+    setContacts(contacts => [newContact, ...contacts]);
   };
 
-  deleteContact = contactId => {
-    this.setState(({ contacts }) => ({
-      contacts: contacts.filter(({ id }) => id !== contactId),
-    }));
+  const deleteContact = toDeleteId => {
+    setContacts(contacts => contacts.filter(({ id }) => id !== toDeleteId));
   };
 
-  render() {
-    const { filter } = this.state;
-    const contacts = this.getVisibleContacts();
+  const changeFilter = e => setFilter(e.target.value);
+  const clearFilter = () => setFilter('');
 
-    return (
-      <AppStyled>
-        <Section title="Phonebook" h="1">
-          <ContactForm onSubmit={this.addContact} />
-        </Section>
+  const visibleContacts = getVisibleContacts();
 
-        <Section title="Contacts">
-          <Filter
-            value={filter}
-            onChange={this.changeFilter}
-            onClearFilter={this.clearFilter}
-          />
+  return (
+    <AppStyled>
+      <Section title="Phonebook" h="1">
+        <ContactForm onSubmit={addContact} />
+      </Section>
 
-          <ContactList
-            contacts={contacts}
-            onDeleteContact={this.deleteContact}
-          />
-        </Section>
+      <Section title="Contacts">
+        <Filter
+          value={filter}
+          onChangeFilter={changeFilter}
+          onClearFilter={clearFilter}
+        />
 
-        <ToastContainer />
-      </AppStyled>
-    );
-  }
-}
+        <ContactList
+          contacts={visibleContacts}
+          onDeleteContact={deleteContact}
+        />
+      </Section>
+
+      <ToastContainer />
+    </AppStyled>
+  );
+};

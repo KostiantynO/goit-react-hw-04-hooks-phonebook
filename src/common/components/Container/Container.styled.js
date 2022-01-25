@@ -8,22 +8,12 @@ export const ContainerStyled = styled.div`
   gap: clamp(20px, 2.1vw, 32px);
   max-width: ${({ theme }) => theme.spacing(100)};
 
-  padding: ${({ theme }) => theme.spacing(0, 4)};
+  max-width: clamp(
+    ${({ theme }) => theme.spacing(80)},
+    50vw,
+    ${({ theme }) => theme.spacing(120)}
+  );
+
+  padding: ${({ theme }) => theme.spacing(0, 5)};
   margin: 0 auto;
-
-  @media screen and (min-width: 480px) {
-    max-width: 480px;
-  }
-
-  @media screen and (min-width: 768px) {
-    max-width: 768px;
-  }
-
-  @media screen and (min-width: 1200px) {
-    max-width: 1200px;
-  }
-
-  @media screen and (min-width: 1600px) {
-    max-width: 1600px;
-  }
 `;

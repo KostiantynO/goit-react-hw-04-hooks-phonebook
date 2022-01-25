@@ -4,17 +4,18 @@ import { LabelStyled } from 'common/components/Label/Label.styled';
 
 export const ContactItemStyled = styled.li`
   position: relative;
+
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: ${({ theme }) => theme.spacing(2)};
 
+  padding: ${({ theme }) => theme.spacing(2, 5, 2, 2)};
+
   border: 1px solid ${({ theme }) => theme.colors.lightGrey};
-
-  padding: ${({ theme }) => theme.spacing(2)};
-
   border-radius: ${({ theme }) => theme.spacing(1)};
   outline: 1px solid ${({ theme }) => theme.colors.black};
-
   ${({ theme }) => theme.transition('border-color, transform')}
 
   @media screen and (min-width: 768px) {
@@ -56,10 +57,6 @@ export const ContactItemStyled = styled.li`
   span {
     text-decoration: ${({ completed }) => completed && '2px line-through'};
     word-break: break-word;
-  }
-
-  span:first-of-type {
-    width: 50%;
   }
 `;
 
